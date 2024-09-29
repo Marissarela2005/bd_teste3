@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Pesquisadores</title>
+    <style>
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #000000; padding: 8px; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>Gerenciamento de Pesquisadores</h1>
+
+    <!-- Formulário para Inserir ou Editar Pesquisador -->
+    <h2 id="formTitle">Inserir Pesquisador</h2>
+    <form id="pesquisadorForm">
+        <input type="hidden" name="id_pesquisador" id="id_pesquisador">
+        <input type="text" placeholder="Nome do Pesquisador" required name="nome" id="nome">
+        <textarea placeholder="Tese Pós-Doutorado" name="tese_posdoc" id="tese_posdoc"></textarea>
+        <textarea placeholder="Dissertação Pós-Doutorado" name="dissertacao_posdoc" id="dissertacao_posdoc"></textarea>
+        <textarea placeholder="Projeto Pós-Doutorado" name="projeto_posdoc" id="projeto_posdoc"></textarea>
+        <button type="submit">Adicionar Pesquisador</button>
+    </form>
+
+    <h2>Pesquisadores</h2>
+    <table id="pesquisadoresTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Tese Pós-Doutorado</th>
+                <th>Dissertação Pós-Doutorado</th>
+                <th>Projeto Pós-Doutorado</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Dados dos Pesquisadores vão aqui -->
+        </tbody>
+    </table>
+
+    <script>
+        const pesquisadores = [];
+        let editIndex = -1;
+
+        document.getElementById('pesquisadorForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const novoPesquisador = {
+                id_pesquisador: formData.get('id_pesquisador') || (pesquisadores.length + 1),
+                nome: formData.get('nome'),
+                tese_posdoc: formData.get('tese_posdoc'),
+                dissertacao_posdoc: formData.get('dissertacao_posdoc'),
+                projeto_posdoc: formData.get('projeto_posdoc'),
+            };
+
+            if (editIndex > -1) {
+                pesquisadores[editIndex] = novoPesquisador; // Editar
+                editIndex = -1;
+            } else {
+                pesquisadores.push(novoPesquisador); // Adicionar
+            }
+
+            atualizarTabela();
+            event.target.reset();
+            document.getElementById('formTitle').innerText = 'Inserir Pesquisador';
+        });
+
+        function atualizarTabela() {
+            const tbody = document.querySelector('#pesquisadoresTable tbody');
+            tbody.innerHTML = '';
+            pesquisadores.forEach((pesquisador, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${pesquisador.id_pesquisador}</td>
+                    <td>${pesquisador.nome}</td>
+                    <td>${pesquisador.tese_posdoc}</td>
+                    <td>${pesquisador.dissertacao_posdoc}</td>
+                    <td>${pesquisador.projeto_posdoc}</td>
+                    <td>
+                        <button onclick="editarPesquisador(${index})">Editar</button>
+                        <button onclick="excluirPesquisador(${index})">Excluir</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function editarPesquisador(index) {
+            const pesquisador = pesquisadores[index];
+            document.getElementById('id_pesquisador').value = pesquisador.id_pesquisador;
+            document.getElementById('nome').value = pesquisador.nome;
+            document.getElementById('tese_posdoc').value = pesquisador.tese_posdoc;
+            document.getElementById('dissertacao_posdoc').value = pesquisador.dissertacao_posdoc;
+            document.getElementById('projeto_posdoc').value = pesquisador.projeto_posdoc;
+            editIndex = index;
+            document.getElementById('formTitle').innerText = 'Editar Pesquisador';
+        }
+
+        function excluirPesquisador(index) {
+            pesquisadores.splice(index, 1);
+            atualizarTabela();
+        }
+    </script>
+</body>
+</html>

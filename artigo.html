@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Artigos</title>
+    <style>
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>Gerenciamento de Artigos</h1>
+
+    <!-- Formulário para Inserir ou Editar Artigo -->
+    <h2 id="formTitle">Inserir Artigo</h2>
+    <form id="artigoForm">
+        <input type="hidden" name="id_artigo" id="id_artigo">
+        <input type="text" placeholder="Nome do Artigo" required name="nome" id="nome">
+        <input type="number" placeholder="Ano" name="ano" id="ano">
+        <input type="text" placeholder="Periódico" name="periodico" id="periodico">
+        <input type="number" placeholder="ID do Pesquisador" required name="id_pesquisador" id="id_pesquisador">
+        <button type="submit">Adicionar Artigo</button>
+    </form>
+
+    <h2>Artigos</h2>
+    <table id="artigosTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Ano</th>
+                <th>Periódico</th>
+                <th>ID do Pesquisador</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Dados dos Artigos vão aqui -->
+        </tbody>
+    </table>
+
+    <script>
+        const artigos = [];
+        let editIndex = -1;
+
+        document.getElementById('artigoForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const novoArtigo = {
+                id_artigo: formData.get('id_artigo') || (artigos.length + 1),
+                nome: formData.get('nome'),
+                ano: formData.get('ano'),
+                periodico: formData.get('periodico'),
+                id_pesquisador: formData.get('id_pesquisador'),
+            };
+
+            if (editIndex > -1) {
+                artigos[editIndex] = novoArtigo; // Editar
+                editIndex = -1;
+            } else {
+                artigos.push(novoArtigo); // Adicionar
+            }
+
+            atualizarTabela();
+            event.target.reset();
+            document.getElementById('formTitle').innerText = 'Inserir Artigo';
+        });
+
+        function atualizarTabela() {
+            const tbody = document.querySelector('#artigosTable tbody');
+            tbody.innerHTML = '';
+            artigos.forEach((artigo, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${artigo.id_artigo}</td>
+                    <td>${artigo.nome}</td>
+                    <td>${artigo.ano}</td>
+                    <td>${artigo.periodico}</td>
+                    <td>${artigo.id_pesquisador}</td>
+                    <td>
+                        <button onclick="editarArtigo(${index})">Editar</button>
+                        <button onclick="excluirArtigo(${index})">Excluir</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function editarArtigo(index) {
+            const artigo = artigos[index];
+            document.getElementById('id_artigo').value = artigo.id_artigo;
+            document.getElementById('nome').value = artigo.nome;
+            document.getElementById('ano').value = artigo.ano;
+            document.getElementById('periodico').value = artigo.periodico;
+            document.getElementById('id_pesquisador').value = artigo.id_pesquisador;
+            editIndex = index;
+            document.getElementById('formTitle').innerText = 'Editar Artigo';
+        }
+
+        function excluirArtigo(index) {
+            artigos.splice(index, 1);
+            atualizarTabela();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Projetos</title>
+    <style>
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>Gerenciamento de Projetos</h1>
+
+    <!-- Formulário para Inserir ou Editar Projeto -->
+    <h2 id="formTitle">Inserir Projeto</h2>
+    <form id="projetoForm">
+        <input type="hidden" name="id_projeto" id="id_projeto">
+        <input type="text" placeholder="Nome do Projeto" required name="nome" id="nome">
+        <input type="number" placeholder="Ano" name="ano" id="ano">
+        <textarea placeholder="Resumo" name="resumo" id="resumo"></textarea>
+        <input type="number" placeholder="ID do Pesquisador" required name="id_pesquisador" id="id_pesquisador">
+        <button type="submit">Adicionar Projeto</button>
+    </form>
+
+    <h2>Projetos</h2>
+    <table id="projetosTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Ano</th>
+                <th>Resumo</th>
+                <th>ID do Pesquisador</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Dados dos Projetos vão aqui -->
+        </tbody>
+    </table>
+
+    <script>
+        const projetos = [];
+        let editIndex = -1;
+
+        document.getElementById('projetoForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const novoProjeto = {
+                id_projeto: formData.get('id_projeto') || (projetos.length + 1),
+                nome: formData.get('nome'),
+                ano: formData.get('ano'),
+                resumo: formData.get('resumo'),
+                id_pesquisador: formData.get('id_pesquisador'),
+            };
+
+            if (editIndex > -1) {
+                projetos[editIndex] = novoProjeto; // Editar
+                editIndex = -1;
+            } else {
+                projetos.push(novoProjeto); // Adicionar
+            }
+
+            atualizarTabela();
+            event.target.reset();
+            document.getElementById('formTitle').innerText = 'Inserir Projeto';
+        });
+
+        function atualizarTabela() {
+            const tbody = document.querySelector('#projetosTable tbody');
+            tbody.innerHTML = '';
+            projetos.forEach((projeto, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${projeto.id_projeto}</td>
+                    <td>${projeto.nome}</td>
+                    <td>${projeto.ano}</td>
+                    <td>${projeto.resumo}</td>
+                    <td>${projeto.id_pesquisador}</td>
+                    <td>
+                        <button onclick="editarProjeto(${index})">Editar</button>
+                        <button onclick="excluirProjeto(${index})">Excluir</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function editarProjeto(index) {
+            const projeto = projetos[index];
+            document.getElementById('id_projeto').value = projeto.id_projeto;
+            document.getElementById('nome').value = projeto.nome;
+            document.getElementById('ano').value = projeto.ano;
+            document.getElementById('resumo').value = projeto.resumo;
+            document.getElementById('id_pesquisador').value = projeto.id_pesquisador;
+            editIndex = index;
+            document.getElementById('formTitle').innerText = 'Editar Projeto';
+        }
+
+        function excluirProjeto(index) {
+            projetos.splice(index, 1);
+            atualizarTabela();
+        }
+        // Adicione esta função no seu script do frontend
+function adicionarProjeto(novoProjeto) {
+    fetch('http://localhost:3000/projetos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(novoProjeto)
+    })
+    .then(response => response.json())
+    .then(data => {
+        projetos.push(data);
+        atualizarTabela();
+    })
+    .catch(error => console.error('Erro ao adicionar projeto:', error));
+}
+
+// Exemplo de chamada na função de submissão do formulário
+document.getElementById('projetoForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const novoProjeto = {
+        nome: formData.get('nome'),
+        ano: formData.get('ano'),
+        resumo: formData.get('resumo'),
+        id_pesquisador: formData.get('id_pesquisador'),
+    };
+    adicionarProjeto(novoProjeto);
+});
+
+    </script>
+</body>
+</html>
+

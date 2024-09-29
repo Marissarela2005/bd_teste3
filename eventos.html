@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Dados</title>
+    <style>
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #000000; padding: 8px; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>Gerenciamento de Eventos, Pesquisadores, Artigos e Projetos</h1>
+
+    <!-- Formulário para Inserir Dados -->
+    <h2>Inserir Evento</h2>
+    <form id="eventoForm">
+        <input type="text" placeholder="Nome do Evento" required name="nome">
+        <input type="number" placeholder="Ano" name="ano">
+        <textarea placeholder="Resumo Ampliado" name="resumos_ampliados"></textarea>
+        <input type="text" placeholder="Periódicos" name="periodicos">
+        <input type="text" placeholder="Anais" name="anais">
+        <button type="submit">Adicionar Evento</button>
+    </form>
+
+    <h2>Eventos</h2>
+    <table id="eventosTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Ano</th>
+                <th>Resumo Ampliado</th>
+                <th>Periódicos</th>
+                <th>Anais</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Dados dos Eventos vão aqui -->
+        </tbody>
+    </table>
+
+    <script>
+        // Exemplo de manipulação de dados
+        const eventos = [];
+
+        document.getElementById('eventoForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const novoEvento = {
+                id: eventos.length + 1,
+                nome: formData.get('nome'),
+                ano: formData.get('ano'),
+                resumos_ampliados: formData.get('resumos_ampliados'),
+                periodicos: formData.get('periodicos'),
+                anais: formData.get('anais'),
+            };
+            eventos.push(novoEvento);
+            atualizarTabela();
+            event.target.reset();
+        });
+
+        function atualizarTabela() {
+            const tbody = document.querySelector('#eventosTable tbody');
+            tbody.innerHTML = '';
+            eventos.forEach(evento => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${evento.id}</td>
+                    <td>${evento.nome}</td>
+                    <td>${evento.ano}</td>
+                    <td>${evento.resumos_ampliados}</td>
+                    <td>${evento.periodicos}</td>
+                    <td>${evento.anais}</td>
+                    <td><button onclick="excluirEvento(${evento.id})">Excluir</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function excluirEvento(id) {
+            const index = eventos.findIndex(evento => evento.id === id);
+            if (index > -1) {
+                eventos.splice(index, 1);
+                atualizarTabela();
+            }
+        }
+    </script>
+</body>
+</html>
